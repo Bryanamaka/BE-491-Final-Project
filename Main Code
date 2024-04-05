@@ -1,0 +1,59 @@
+import pandas as pd 
+data_path = 'METABRIC_RNA_Mutation.csv'
+df = pd.read_csv(METABRIC_RNA_Mutation)
+print(df.head())
+
+#Basic info
+print(df.info())
+
+# Summary statistics for numerical features
+print(df.describe())
+
+# Count of missing values in each column
+print(df.isnull().sum())
+
+# Distribution of a key variable (e.g., survival time)
+import matplotlib.pyplot as plt
+
+plt.hist(df['Survival_Time'], bins=30)
+plt.xlabel('Survival Time')
+plt.ylabel('Frequency')
+plt.title('Distribution of Survival Time')
+plt.show()
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.impute import SimpleImputer
+
+# Assuming 'Survival_Time' is our target variable
+X = df.drop(['Survival_Time'], axis=1)
+y = df['Survival_Time']
+
+# Imputing missing values
+imputer = SimpleImputer(strategy='mean')
+X_imputed = imputer.fit_transform(X)
+
+# Splitting dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X_imputed, y, test_size=0.2, random_state=42)
+
+# Standardizing features
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+
+# Initialize and train the model
+model = LinearRegression()
+model.fit(X_train_scaled, y_train)
+
+# Predictions
+predictions = model.predict(X_test_scaled)
+
+# Evaluate the model
+mse = mean_squared_error(y_test, predictions)
+print(f'Mean Squared Error: {mse}')
+
+
